@@ -127,7 +127,7 @@ async function main() {
     },
   });
 
-  await prisma.residente.upsert({
+  const res2 = await prisma.residente.upsert({
     where: { id: 'res-2' },
     update: {},
     create: {

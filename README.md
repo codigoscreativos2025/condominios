@@ -63,8 +63,11 @@ docker-compose up -d
 
 ## Credenciales de Prueba (después de seed)
 
-- **Admin**: admin@torresdevale.com / admin123
-- **Super Admin**: superadmin@jccondominios.com / admin123
+| Rol           | Email                                    | Contraseña |
+|---------------|------------------------------ ------------|-------------|
+| Admin         | [admin@torresdevale.com] | admin123    |
+| Super Admin   | [superadmin@jccondominios.com] | admin123    |
+| Residente     | [carlos.mendoza@email.com] | admin123    |
 
 ## APIs
 
@@ -95,17 +98,17 @@ POST /api/v1/webhook/receive
 
 ## Roles y Permisos
 
-| Recurso | Super Admin | Admin | Residente |
-|---------|-------------|-------|-----------|
-| Dashboard Global | ✓ | - | - |
-| Gestionar Condominios | ✓ | - | - |
-| Dashboard Condominio | - | ✓ | - |
-| Gestión Financiera | - | ✓ | - |
-| Directorio Residentes | - | ✓ | - |
-| Tickets (atención) | - | ✓ | - |
-| Mi Perfil | - | ✓ | ✓ |
-| Mi Estado de Cuenta | - | ✓ | ✓ |
-| Mis Tickets | - | ✓ | ✓ |
+| Recurso           | Super Admin | Admin | Residente |
+|-------------------|-------------|-------|-----------|
+| Dashboard Global  |   ✓           | -     | -         |
+| Gestionar Condominios | ✓           | -     | -         |
+| Dashboard Condominio | -           | ✓     | -         |
+| Gestión Financiera | -           | ✓     | -         |
+| Directorio Residentes | -           | ✓     | -         |
+| Tickets (atención) | -           | ✓     | -         |
+| Mi Perfil           | -           | ✓     | ✓         |
+| Mi Estado de Cuenta | -           | ✓     | ✓         |
+| Mis Tickets         | -           | ✓     | ✓         |
 
 ## Comandos Útiles
 
