@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Button, Input, Select, Modal, Card, CardTitle, Badge } from '@/components/ui';
+import { Button, Input, Select, Modal, Card, Badge } from '@/components/ui';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 type TipoMovimiento = 'INGRESO' | 'EGRESO';
@@ -54,7 +53,14 @@ export default function IngresosEgresosPage() {
   const [movimientos, setMovimientos] = useState<Movimiento[]>(movimientosIniciales);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoMovimiento>('INGRESO');
-  const { register, handleSubmit, reset, watch } = useForm();
+  const [formData, setFormData] = useState({
+    concepto: '',
+    monto: '',
+    fecha: '',
+    categoria: '',
+    residenteId: '',
+    beneficiario: '',
+  });
 
   const totalIngresos = movimientos
     .filter((m) => m.tipo === 'INGRESO')
@@ -64,23 +70,35 @@ export default function IngresosEgresosPage() {
     .filter((m) => m.tipo === 'EGRESO')
     .reduce((sum, m) => sum + m.monto, 0);
 
-  const onSubmit = (data: Record<string, string>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const categoriaLabel = tipoSeleccionado === 'INGRESO'
+      ? categoriasIngreso.find((c) => c.value === formData.categoria)?.label || ''
+      : categoriasEgreso.find((c) => c.value === formData.categoria)?.label || '';
+
     const nuevoMovimiento: Movimiento = {
       id: Date.now().toString(),
       tipo: tipoSeleccionado,
-      concepto: data.concepto,
-      monto: parseFloat(data.monto),
-      fecha: new Date(data.fecha),
-      categoria: tipoSeleccionado === 'INGRESO'
-        ? categoriasIngreso.find((c) => c.value === data.categoria)?.label || ''
-        : categoriasEgreso.find((c) => c.value === data.categoria)?.label || '',
+      concepto: formData.concepto,
+      monto: parseFloat(formData.monto),
+      fecha: new Date(formData.fecha),
+      categoria: categoriaLabel,
       categoriaColor: tipoSeleccionado === 'INGRESO' ? '#006242' : '#712ae2',
-      residente: data.residenteId ? residentes.find((r) => r.value === data.residenteId)?.label : undefined,
-      beneficiario: data.beneficiario,
+      residente: formData.residenteId ? residentes.find((r) => r.value === formData.residenteId)?.label : undefined,
+      beneficiario: formData.beneficiario,
       estado: 'Completado',
     };
     setMovimientos([nuevoMovimiento, ...movimientos]);
-    reset();
+    setFormData({ concepto: '', monto: '', fecha: '', categoria: '', residenteId: '', beneficiario: '' });
     setIsModalOpen(false);
   };
 
@@ -242,7 +260,7 @@ export default function IngresosEgresosPage() {
       </main>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nuevo Movimiento">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex gap-4 mb-6">
             <button
               type="button"
@@ -271,7 +289,9 @@ export default function IngresosEgresosPage() {
           <Input
             label="Concepto"
             placeholder="Descripción del movimiento"
-            {...register('concepto', { required: true })}
+            name="concepto"
+            value={formData.concepto}
+            onChange={handleInputChange}
           />
 
           <div className="grid grid-cols-2 gap-4">
@@ -279,12 +299,16 @@ export default function IngresosEgresosPage() {
               label="Monto"
               type="number"
               placeholder="0.00"
-              {...register('monto', { required: true })}
+              name="monto"
+              value={formData.monto}
+              onChange={handleInputChange}
             />
             <Input
               label="Fecha"
               type="date"
-              {...register('fecha', { required: true })}
+              name="fecha"
+              value={formData.fecha}
+              onChange={handleInputChange}
             />
           </div>
 
@@ -292,20 +316,24 @@ export default function IngresosEgresosPage() {
             label="Categoría"
             options={tipoSeleccionado === 'INGRESO' ? categoriasIngreso : categoriasEgreso}
             placeholder="Seleccionar categoría"
-            {...register('categoria', { required: true })}
+            value={formData.categoria}
+            onChange={(value) => handleSelectChange('categoria', value)}
           />
 
           {tipoSeleccionado === 'INGRESO' ? (
             <Select
               label="Residente"
               options={residentes}
-              {...register('residenteId')}
+              value={formData.residenteId}
+              onChange={(value) => handleSelectChange('residenteId', value)}
             />
           ) : (
             <Input
               label="Beneficiario"
               placeholder="Nombre del proveedor o beneficiario"
-              {...register('beneficiario')}
+              name="beneficiario"
+              value={formData.beneficiario}
+              onChange={handleInputChange}
             />
           )}
 

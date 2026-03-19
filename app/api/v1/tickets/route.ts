@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { validateApiKey, requireAuth, canAccessResidentData } from '@/lib/rbac';
+import { validateApiKey, requireAuth } from '@/lib/rbac';
 import { triggerWebhooks } from '@/lib/webhook';
 
 export async function GET(request: NextRequest) {
@@ -9,7 +9,6 @@ export async function GET(request: NextRequest) {
     
     let condominioId: string | null = null;
     let residenteId: string | null = null;
-    let estado: string | null = null;
     
     if (apiKey) {
       const user = await validateApiKey(apiKey);
@@ -24,7 +23,7 @@ export async function GET(request: NextRequest) {
         const residente = await prisma.residente.findFirst({
           where: { userId: session.user.id },
         });
-        residenteId = residente?.id || undefined;
+        residenteId = residente?.id || null;
       }
     }
 
@@ -32,7 +31,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Condominio not found' }, { status: 400 });
     }
 
-    estado = request.nextUrl.searchParams.get('estado') || undefined;
+    const estado = request.nextUrl.searchParams.get('estado') || undefined;
 
     const whereClause: Record<string, unknown> = { condominioId };
     if (residenteId) {
@@ -88,7 +87,7 @@ export async function POST(request: NextRequest) {
         const residente = await prisma.residente.findFirst({
           where: { userId: session.user.id },
         });
-        residenteId = residente?.id || undefined;
+        residenteId = residente?.id || null;
       }
     }
 

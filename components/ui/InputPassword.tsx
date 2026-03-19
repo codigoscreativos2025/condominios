@@ -10,6 +10,8 @@ interface InputPasswordProps {
   error?: string;
   name?: string;
   id?: string;
+  required?: boolean;
+  disabled?: boolean;
 }
 
 export function InputPassword({
@@ -20,6 +22,8 @@ export function InputPassword({
   error,
   name,
   id,
+  required,
+  disabled,
 }: InputPasswordProps) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -41,6 +45,8 @@ export function InputPassword({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          required={required}
+          disabled={disabled}
           className={`
             w-full bg-surface-container-low border-none rounded-lg 
             py-3.5 pl-12 pr-12

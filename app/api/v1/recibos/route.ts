@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Invalid API key' }, { status: 401 });
       }
       condominioId = user.condominioId;
-      residenteId = request.nextUrl.searchParams.get('residenteId') || undefined;
+      residenteId = request.nextUrl.searchParams.get('residenteId') || null;
     } else {
       const session = await requireAuth();
       condominioId = session.user.condominioId;
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
         const residente = await prisma.residente.findFirst({
           where: { userId: session.user.id },
         });
-        residenteId = residente?.id || undefined;
+        residenteId = residente?.id || null;
       }
     }
 
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       condominioId = user.condominioId;
     } else {
       const session = await requireAuth();
-      if (!canAccessResidentData(session.user.rol as 'ADMIN' | 'SUPER_ADMIN' | 'RESIDENT')) {
+      if (!canAccessResidentData(session.user.rol)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       condominioId = session.user.condominioId;

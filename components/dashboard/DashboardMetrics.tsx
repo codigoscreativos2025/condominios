@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, CardTitle, Badge, ProgressBar } from '@/components/ui';
+import { Card, CardTitle, CardDescription, Badge, ProgressBar } from '@/components/ui';
 import { formatCurrency } from '@/lib/utils';
 
 interface Metrics {

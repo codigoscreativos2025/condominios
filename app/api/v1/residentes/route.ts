@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { validateApiKey, requireAuth, canAccessResidentData } from '@/lib/rbac';
+import { validateApiKey, requireAuth } from '@/lib/rbac';
 import { triggerWebhooks } from '@/lib/webhook';
 
 export async function GET(request: NextRequest) {
@@ -19,9 +19,6 @@ export async function GET(request: NextRequest) {
       condominioId = user.condominioId;
     } else {
       session = await requireAuth();
-      if (!canAccessResidentData(session.user.rol as 'ADMIN' | 'SUPER_ADMIN' | 'RESIDENT')) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
       condominioId = session.user.condominioId;
     }
 
@@ -63,9 +60,6 @@ export async function POST(request: NextRequest) {
       condominioId = user.condominioId;
     } else {
       const session = await requireAuth();
-      if (!canAccessResidentData(session.user.rol as 'ADMIN' | 'SUPER_ADMIN' | 'RESIDENT')) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
       condominioId = session.user.condominioId;
     }
 

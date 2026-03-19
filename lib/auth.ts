@@ -18,7 +18,7 @@ declare module 'next-auth' {
   }
 }
 
-declare module '@auth/core/jwt' {
+declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
     email: string;
@@ -74,7 +74,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.email = user.email;
+        token.email = user.email as string;
         token.nombre = user.nombre;
         token.rol = user.rol;
         token.condominioId = user.condominioId;
@@ -84,12 +84,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id;
-        session.user.email = token.email;
-        session.user.nombre = token.nombre;
-        session.user.rol = token.rol;
-        session.user.condominioId = token.condominioId;
-        session.user.apiKey = token.apiKey;
+        session.user.id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.nombre = token.nombre as string;
+        session.user.rol = token.rol as string;
+        session.user.condominioId = token.condominioId as string | null;
+        session.user.apiKey = token.apiKey as string;
       }
       return session;
     },

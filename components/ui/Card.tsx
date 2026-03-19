@@ -5,9 +5,10 @@ interface CardProps {
   className?: string;
   hover?: boolean;
   glass?: boolean;
+  onClick?: () => void;
 }
 
-export function Card({ children, className = '', hover = false, glass = false }: CardProps) {
+export function Card({ children, className = '', hover = false, glass = false, onClick }: CardProps) {
   return (
     <div
       className={`
@@ -16,6 +17,9 @@ export function Card({ children, className = '', hover = false, glass = false }:
         ${hover ? 'transition-all duration-200 hover:shadow-card-hover hover:scale-[1.01]' : ''}
         ${className}
       `}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
     >
       {children}
     </div>

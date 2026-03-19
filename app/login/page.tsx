@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui/Input';
 import { InputPassword } from '@/components/ui/InputPassword';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
@@ -42,6 +42,47 @@ export default function LoginPage() {
     }
   };
 
+  return (
+    <form onSubmit={handleSubmit} className="w-full space-y-6">
+      <Input
+        label="Correo electrónico"
+        type="email"
+        placeholder="nombre@ejemplo.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+
+      <InputPassword
+        label="Contraseña"
+        placeholder="••••••••"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+
+      {error && (
+        <div className="p-3 bg-error-container text-on-error-container text-sm rounded-lg">
+          {error}
+        </div>
+      )}
+
+      <div className="pt-4">
+        <Button
+          type="submit"
+          className="w-full"
+          size="lg"
+          loading={loading}
+        >
+          <span>Entrar</span>
+          <span className="material-symbols-outlined text-lg">arrow_forward</span>
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-surface relative overflow-hidden">
       <div className="fixed inset-0 z-0 overflow-hidden bg-surface-container-low">
@@ -92,43 +133,9 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="w-full space-y-6">
-              <Input
-                label="Correo electrónico"
-                type="email"
-                placeholder="nombre@ejemplo.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                icon="mail"
-                required
-              />
-
-              <InputPassword
-                label="Contraseña"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-
-              {error && (
-                <div className="p-3 bg-error-container text-on-error-container text-sm rounded-lg">
-                  {error}
-                </div>
-              )}
-
-              <div className="pt-4">
-                <Button
-                  type="submit"
-                  className="w-full"
-                  size="lg"
-                  loading={loading}
-                >
-                  <span>Entrar</span>
-                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                </Button>
-              </div>
-            </form>
+            <Suspense fallback={<div className="w-full text-center">Cargando...</div>}>
+              <LoginForm />
+            </Suspense>
 
             <div className="mt-8 text-center">
               <a
