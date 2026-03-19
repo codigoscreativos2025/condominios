@@ -47,6 +47,7 @@ model User {
 
   sesiones    Sesion[]
   recibidos   Ticket[] @relation("TicketReceived")
+  residentes   Residente[]
 }
 
 model Sesion {
@@ -82,6 +83,7 @@ model Residente {
   pagos        Pago[]
   tickets      Ticket[]
   deudas       Deuda[]
+  ingresos     Ingreso[]
 }
 
 model CategoriaIngresoRes {
