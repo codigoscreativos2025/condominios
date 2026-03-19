@@ -1,10 +1,7 @@
-FROM node:20-slim AS base
+FROM node:20-alpine AS base
 
 FROM base AS deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libc6-compat \
-    libssl3 \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache libc6-compat libcrypto1.1 libssl1.1
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --ignore-scripts
@@ -21,8 +18,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN groupadd --system --gid 1001 nodejs && \
-    useradd --system --uid 1001 nextjs
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
