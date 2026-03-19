@@ -2,14 +2,13 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 import { prisma } from './prisma';
-import type { Rol } from '@prisma/client';
 
 declare module 'next-auth' {
   interface User {
     id: string;
     email: string;
     nombre: string;
-    rol: Rol;
+    rol: string;
     condominioId: string | null;
     apiKey: string;
   }
@@ -24,7 +23,7 @@ declare module '@auth/core/jwt' {
     id: string;
     email: string;
     nombre: string;
-    rol: Rol;
+    rol: string;
     condominioId: string | null;
     apiKey: string;
   }
@@ -64,7 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: user.id,
           email: user.email,
           nombre: user.nombre,
-          rol: user.rol as Rol,
+          rol: user.rol,
           condominioId: user.condominioId,
           apiKey: user.apiKey,
         };

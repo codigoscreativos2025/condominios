@@ -1,8 +1,6 @@
 import { auth } from './auth';
 import { prisma } from './prisma';
 
-export type Rol = 'SUPER_ADMIN' | 'ADMIN' | 'RESIDENT';
-
 export async function requireAuth() {
   const session = await auth();
   if (!session?.user) {
@@ -11,9 +9,9 @@ export async function requireAuth() {
   return session;
 }
 
-export async function requireRole(roles: Rol[]) {
+export async function requireRole(roles: string[]) {
   const session = await requireAuth();
-  if (!roles.includes(session.user.rol as Rol)) {
+  if (!roles.includes(session.user.rol)) {
     throw new Error('Forbidden');
   }
   return session;
@@ -45,18 +43,18 @@ export async function validateApiKey(apiKey: string) {
   return user;
 }
 
-export function canAccessResidentData(userRol: Rol): boolean {
+export function canAccessResidentData(userRol: string): boolean {
   return userRol === 'ADMIN' || userRol === 'SUPER_ADMIN';
 }
 
-export function canAccessFinancialData(userRol: Rol): boolean {
+export function canAccessFinancialData(userRol: string): boolean {
   return userRol === 'ADMIN' || userRol === 'SUPER_ADMIN';
 }
 
-export function canManageCondominio(userRol: Rol): boolean {
+export function canManageCondominio(userRol: string): boolean {
   return userRol === 'ADMIN' || userRol === 'SUPER_ADMIN';
 }
 
-export function canAccessSuperAdmin(userRol: Rol): boolean {
+export function canAccessSuperAdmin(userRol: string): boolean {
   return userRol === 'SUPER_ADMIN';
 }
