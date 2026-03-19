@@ -127,7 +127,7 @@ async function main() {
     },
   });
 
-  const res2 = await prisma.residente.upsert({
+  await prisma.residente.upsert({
     where: { id: 'res-2' },
     update: {},
     create: {
@@ -179,6 +179,26 @@ async function main() {
   });
 
   console.log('Created residents');
+
+  const residenteUser = await prisma.user.upsert({
+    where: { email: 'carlos.mendoza@email.com' },
+    update: {},
+    create: {
+      email: 'carlos.mendoza@email.com',
+      password: passwordHash,
+      nombre: 'Carlos Mendoza',
+      rol: 'RESIDENT',
+      condominioId: condominio.id,
+      isActive: true,
+    },
+  });
+
+  await prisma.residente.update({
+    where: { id: res1.id },
+    data: { userId: residenteUser.id },
+  });
+
+  console.log('Created resident user: carlos.mendoza@email.com / admin123');
 
   await prisma.ingreso.create({
     data: {
@@ -236,7 +256,17 @@ async function main() {
     },
   });
 
-  console.log('Created ticket');
+  await prisma.deuda.create({
+    data: {
+      concepto: 'Mantenimiento mensual - Octubre',
+      monto: 2500,
+      fechaVencimiento: new Date('2024-10-31'),
+      pagada: false,
+      residenteId: res1.id,
+    },
+  });
+
+  console.log('Created ticket and debt');
 
   console.log('\n========================================');
   console.log('Seed completed successfully!');
@@ -244,6 +274,7 @@ async function main() {
   console.log('\n--- Login Credentials ---');
   console.log('Admin: admin@torresdevale.com / admin123');
   console.log('Super Admin: superadmin@jccondominios.com / admin123');
+  console.log('Residente: carlos.mendoza@email.com / admin123');
   console.log('\n========================================\n');
 }
 
