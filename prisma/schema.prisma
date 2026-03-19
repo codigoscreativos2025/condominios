@@ -1,0 +1,323 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+enum Rol {
+  SUPER_ADMIN
+  ADMIN
+  RESIDENT
+}
+
+enum TipoResidente {
+  PROPIETARIO
+  INQUILINO
+}
+
+enum EstadoPago {
+  AL_DIA
+  PENDIENTE
+  VENCIDO
+}
+
+enum TipoMovimiento {
+  INGRESO
+  EGRESO
+}
+
+enum CategoriaIngreso {
+  PAGO_MENSUAL
+  PAGO_EXTRA
+  MULTA
+  OTRO
+}
+
+enum CategoriaEgreso {
+  MANTENIMIENTO
+  SERVICIOS
+  PERSONAL
+  PROVEEDORES
+  IMPUESTOS
+  OTRO
+}
+
+enum EstadoMovimiento {
+  COMPLETADO
+  PROGRAMADO
+  VENCIDO
+}
+
+enum CategoriaTicket {
+  WHATSAPP
+  RECLAMO
+  SUGERENCIA
+  SEGURIDAD
+  MANTENIMIENTO
+}
+
+enum EstadoTicket {
+  ABIERTO
+  PENDIENTE
+  RESUELTO
+}
+
+enum EstadoCondominio {
+  ACTIVO
+  SUSPENDIDO
+  ELIMINADO
+}
+
+enum PlanSuscripcion {
+  BASICO
+  PREMIUM
+  EMPRESARIAL
+}
+
+model Condominio {
+  id        String   @id @default(cuid())
+  nombre    String
+  direccion String?
+  telefono  String?
+  email     String?
+  estado    EstadoCondominio @default(ACTIVO)
+  plan      PlanSuscripcion  @default(BASICO)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users        User[]
+  residentes   Residente[]
+  ingresos     Ingreso[]
+  egresos      Egreso[]
+  tickets      Ticket[]
+  webhooks     Webhook[]
+  categoriasIngreso CategoriaIngresoRes[]
+  categoriasEgreso  CategoriaEgresoRes[]
+  notificaciones Notificacion[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  nombre    String
+  rol       Rol      @default(RESIDENT)
+  apiKey    String   @unique @default(cuid())
+  avatar    String?
+  telefono  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  condominioId String?
+  condominio   Condominio? @relation(fields: [condominioId], references: [id])
+
+  sesiones    Sesion[]
+  recibidos   Ticket[] @relation("TicketReceived")
+}
+
+model Sesion {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Residente {
+  id           String       @id @default(cuid())
+  nombre       String
+  email        String?
+  telefono     String
+  torre        String
+  unidad       String
+  tipo         TipoResidente @default(PROPIETARIO)
+  estadoPago   EstadoPago   @default(AL_DIA)
+  saldo        Float        @default(0)
+  avatar       String?
+  notas        String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  condominioId String
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+
+  userId       String?
+  user         User?       @relation(fields: [userId], references: [id])
+
+  pagos        Pago[]
+  tickets      Ticket[]
+  deudas       Deuda[]
+}
+
+model CategoriaIngresoRes {
+  id     String   @id @default(cuid())
+  nombre String
+  color  String   @default("#004ac6")
+  
+  condominioId String
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+
+  ingresos Ingreso[]
+}
+
+model CategoriaEgresoRes {
+  id     String   @id @default(cuid())
+  nombre String
+  color  String   @default("#712ae2")
+  
+  condominioId String
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+
+  egresos Egreso[]
+}
+
+model Ingreso {
+  id           String   @id @default(cuid())
+  concepto     String
+  monto        Float
+  fecha        DateTime
+  comprobante  String?
+  observaciones String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  categoriaId String
+  categoria   CategoriaIngresoRes @relation(fields: [categoriaId], references: [id])
+
+  residenteId String?
+  residente   Residente? @relation(fields: [residenteId], references: [id])
+
+  condominioId String
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+}
+
+model Egreso {
+  id           String   @id @default(cuid())
+  concepto     String
+  monto        Float
+  fecha        DateTime
+  beneficiario String?
+  comprobante  String?
+  estado       EstadoMovimiento @default(COMPLETADO)
+  observaciones String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  categoriaId String
+  categoria   CategoriaEgresoRes @relation(fields: [categoriaId], references: [id])
+
+  condominioId String
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+}
+
+model Deuda {
+  id          String   @id @default(cuid())
+  concepto    String
+  monto       Float
+  fechaVencimiento DateTime
+  pagada      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  residenteId String
+  residente   Residente @relation(fields: [residenteId], references: [id])
+
+  pagoId String?
+  pago   Pago?   @relation(fields: [pagoId], references: [id])
+}
+
+model Pago {
+  id          String   @id @default(cuid())
+  monto       Float
+  metodoPago  String?
+  referencia  String?
+  fecha       DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  residenteId String
+  residente   Residente @relation(fields: [residenteId], references: [id])
+
+  deudas Deuda[]
+  recibo  String?
+}
+
+model Ticket {
+  id          String   @id @default(cuid())
+  titulo      String
+  descripcion String
+  categoria   CategoriaTicket @default(WHATSAPP)
+  estado      EstadoTicket @default(ABIERTO)
+  prioridad   String   @default("normal")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  residenteId String
+  residente   Residente @relation(fields: [residenteId], references: [id])
+
+  receivedById String?
+  receivedBy   User?   @relation("TicketReceived", fields: [receivedById], references: [id])
+
+  condominioId String
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+
+  mensajes TicketMensaje[]
+}
+
+model TicketMensaje {
+  id        String   @id @default(cuid())
+  contenido String
+  remitente String   @default("residente")
+  archivos  String?
+  createdAt DateTime @default(now())
+
+  ticketId String
+  ticket   Ticket  @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model Webhook {
+  id        String   @id @default(cuid())
+  nombre    String
+  url       String
+  eventos   String
+  activo    Boolean  @default(true)
+  secret    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  condominioId String
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+
+  logs WebhookLog[]
+}
+
+model WebhookLog {
+  id        String   @id @default(cuid())
+  evento    String
+  payload   String
+  respuesta String?
+  status    Int?
+  success   Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  webhookId String
+  webhook   Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+}
+
+model Notificacion {
+  id        String   @id @default(cuid())
+  titulo    String
+  mensaje   String
+  tipo      String   @default("info")
+  leida     Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  condominioId String
+  condominio   Condominio @relation(fields: [condominioId], references: [id])
+}
