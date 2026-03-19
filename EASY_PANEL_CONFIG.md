@@ -41,11 +41,11 @@ Agregar las siguientes variables de entorno en EasyPanel:
 # Base de datos
 DATABASE_URL=file:./data/dev.db
 
-# NextAuth - URL de producción (REEMPLAZAR con tu dominio)
+# NextAuth v5 - URL de producción (REEMPLAZAR con tu dominio)
 NEXTAUTH_URL=https://tu-dominio.com
 
-# NextAuth - Secret generado (generar uno nuevo para producción)
-NEXTAUTH_SECRET=genera-un-secret-largo-y-aleatorio-minimo-32-caracteres
+# NextAuth v5 - Secret generado (generar uno nuevo para producción, mínimo 32 caracteres)
+AUTH_SECRET=genera-un-secret-largo-y-aleatorio-minimo-32-caracteres
 
 # Upload
 UPLOAD_DIR=/app/uploads
@@ -91,6 +91,7 @@ Actualizar las variables de entorno con el dominio real:
 
 ```env
 NEXTAUTH_URL=https://tu-dominio.com
+AUTH_SECRET=tu-secret-seguro-de-al-menos-32-caracteres
 NEXT_PUBLIC_APP_URL=https://tu-dominio.com
 ```
 
@@ -307,14 +308,18 @@ npx prisma migrate deploy
 - Solución: Verificar que la aplicación sea accesible desde internet
 
 ### Problema: "Invalid signature" en NextAuth
-- Causa: NEXTAUTH_SECRET no coincide
-- Solución: Verificar que NEXTAUTH_SECRET sea el mismo en todas las instancias
+- Causa: AUTH_SECRET no coincide o falta
+- Solución: Verificar que AUTH_SECRET esté configurado (mínimo 32 caracteres)
+
+### Problema: Prisma engine error (libssl.so.1.1 not found)
+- Causa: Image uses Alpine which needs libssl1.1
+- Solución: Use `node:20-slim` base image (Debian) for better OpenSSL compatibility
 
 ---
 
 ## 11. Checklist de Producción
 
-- [ ] Cambiar `NEXTAUTH_SECRET` por uno nuevo y seguro
+- [ ] Configurar `AUTH_SECRET` con un valor seguro de al menos 32 caracteres
 - [ ] Configurar dominio con SSL
 - [ ] Configurar volúmenes de datos
 - [ ] Configurar backups automáticos
