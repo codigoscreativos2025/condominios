@@ -27,14 +27,12 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/public ./public
-RUN mkdir .next && chown nextjs:nodejs .next
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+RUN mkdir .next
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/prisma ./prisma
 
-RUN mkdir -p /app/uploads /app/data && chown nextjs:nodejs /app/uploads /app/data
-
-USER nextjs
+RUN mkdir -p /app/uploads /app/data
 
 EXPOSE 3000
 ENV PORT=3000
