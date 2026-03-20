@@ -34,11 +34,13 @@ RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
 ENV HOME=/home/nextjs
 
-USER nextjs
-
 EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npx tsx node_modules/.bin/prisma-seed && node server.js"]
+RUN npx prisma db push --accept-data-loss && npx tsx prisma/seed.ts
+
+USER nextjs
+
+CMD ["node", "server.js"]
