@@ -1,12 +1,12 @@
-import { PrismaClient } from '@prisma/client';
-import { hash } from 'bcryptjs';
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('Starting seed...');
 
-  const passwordHash = await hash('admin123', 12);
+  const passwordHash = await bcrypt.hash('admin123', 12);
 
   const condominio = await prisma.condominio.upsert({
     where: { id: 'condominio-demo' },
