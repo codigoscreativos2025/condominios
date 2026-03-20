@@ -9,10 +9,10 @@ export default function SuperAdminDashboardPage() {
       <div className="fixed left-0 top-0 h-screen w-64 bg-slate-900 border-r flex flex-col py-6 px-4 z-50">
         <div className="flex items-center gap-3 px-2 mb-10">
           <div className="w-10 h-10 rounded-full bg-primary p-1 flex items-center justify-center shadow-sm">
-            <span className="text-on-primary font-headline font-extrabold text-xl">JC</span>
+            <span className="text-on-primary font-headline font-extrabold text-xl">CP</span>
           </div>
           <div>
-            <h1 className="font-headline text-lg font-bold text-white leading-tight">JC Condominios</h1>
+            <h1 className="font-headline text-lg font-bold text-white leading-tight">Condominios PIVOT</h1>
             <p className="font-label text-xs text-slate-400 italic">Super Admin Panel</p>
           </div>
         </div>
@@ -53,7 +53,7 @@ export default function SuperAdminDashboardPage() {
               Panel de Control Global
             </h1>
             <p className="text-on-surface-variant font-label">
-              Vista general del rendimiento de JC Condominios SaaS
+              Vista general del rendimiento de Condominios PIVOT SaaS
             </p>
           </div>
 

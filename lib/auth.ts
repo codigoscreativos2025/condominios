@@ -11,6 +11,7 @@ declare module 'next-auth' {
     rol: string;
     condominioId: string | null;
     apiKey: string;
+    isSuperAdmin?: boolean;
   }
 
   interface Session {
@@ -26,6 +27,7 @@ declare module 'next-auth/jwt' {
     rol: string;
     condominioId: string | null;
     apiKey: string;
+    isSuperAdmin?: boolean;
   }
 }
 

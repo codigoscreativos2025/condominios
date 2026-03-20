@@ -17,6 +17,8 @@ const adminNavItems: NavItem[] = [
   { label: 'Directorio', href: '/admin/directorio', icon: 'groups' },
   { label: 'Consultas y Reclamos', href: '/admin/consultas', icon: 'contact_support' },
   { label: 'Notificaciones', href: '/admin/notificaciones', icon: 'notifications' },
+  { label: 'Estadísticas', href: '/admin/estadisticas', icon: 'analytics' },
+  { label: 'Configuración', href: '/admin/configuracion', icon: 'settings' },
 ];
 
 const residenteNavItems: NavItem[] = [
@@ -29,7 +31,7 @@ interface SidebarProps {
   condominioNombre?: string;
 }
 
-export function Sidebar({ condominioNombre = 'JC Condominios' }: SidebarProps) {
+export function Sidebar({ condominioNombre = 'Condominios PIVOT' }: SidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const rol = session?.user?.rol;
@@ -40,7 +42,7 @@ export function Sidebar({ condominioNombre = 'JC Condominios' }: SidebarProps) {
     <aside className="h-screen w-64 fixed left-0 top-0 border-r-0 bg-slate-50 dark:bg-slate-900 flex flex-col py-6 px-4 z-50">
       <div className="flex items-center gap-3 px-2 mb-10">
         <div className="w-10 h-10 rounded-full bg-surface-container-lowest p-1 flex items-center justify-center shadow-sm">
-          <span className="text-primary font-headline font-extrabold text-xl">JC</span>
+            <span className="text-primary font-headline font-extrabold text-xl">CP</span>
         </div>
         <div>
           <h1 className="font-headline text-lg font-bold text-slate-900 dark:text-white leading-tight">

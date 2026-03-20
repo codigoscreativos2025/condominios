@@ -119,15 +119,15 @@ export default function LoginPage() {
             <div className="mb-8">
               <div className="bg-surface-container-lowest rounded-full p-1 shadow-sm border border-outline-variant/10">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center text-on-primary font-headline font-extrabold text-2xl tracking-tighter">
-                  JC
+                  CP
                 </div>
               </div>
             </div>
 
             <div className="text-center mb-10">
-              <h1 className="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">
-                JC Condominios
-              </h1>
+                <h1 className="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">
+                  Condominios PIVOT
+                </h1>
               <p className="text-on-surface-variant font-body text-sm">
                 Management System
               </p>
@@ -148,7 +148,7 @@ export default function LoginPage() {
 
             <div className="mt-12 text-center">
               <p className="text-xs text-on-surface-variant font-body italic">
-                Automatizaciones por n8n
+                Automatizaciones
               </p>
             </div>
           </div>

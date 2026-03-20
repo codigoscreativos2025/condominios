@@ -19,7 +19,7 @@ interface RecentActivityProps {
     concepto: string;
     monto: number;
     createdAt: Date;
-    residente?: { nombre: string; torre: string; unidad: string } | null;
+    residente?: { nombre: string; torre: string | null; unidad: string | null } | null;
   }>;
   egresos: Array<{
     id: string;
@@ -34,7 +34,7 @@ export function RecentActivity({ ingresos, egresos }: RecentActivityProps) {
     ...ingresos.map((i) => ({
       id: i.id,
       tipo: 'pago' as const,
-      titulo: i.residente
+      titulo: i.residente?.torre && i.residente?.unidad
         ? `Pago: ${i.residente.torre} - ${i.residente.unidad}`
         : `Ingreso: ${i.concepto}`,
       descripcion: i.concepto,

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardTitle, Badge, Button, Modal, Input } from '@/components/ui';
 import { formatDate } from '@/lib/utils';
 
@@ -8,24 +8,79 @@ interface Condominio {
   id: string;
   nombre: string;
   direccion: string;
+  tipoCondominio: 'CASAS' | 'APARTAMENTOS';
+  apiKey?: string;
   estado: 'ACTIVO' | 'SUSPENDIDO' | 'ELIMINADO';
   plan: 'BASICO' | 'PREMIUM' | 'EMPRESARIAL';
   usuarios: number;
   residentes: number;
-  createdAt: Date;
+  createdAt: string;
 }
 
-const condominiosIniciales: Condominio[] = [
-  { id: '1', nombre: 'Torres de Valle', direccion: 'Av. Principal 123, Col. Valle', estado: 'ACTIVO', plan: 'PREMIUM', usuarios: 5, residentes: 124, createdAt: new Date('2023-01-15') },
-  { id: '2', nombre: 'Residencial Las Flores', direccion: 'Calle Flores 456, Col. Jardines', estado: 'ACTIVO', plan: 'BASICO', usuarios: 2, residentes: 48, createdAt: new Date('2023-06-20') },
-  { id: '3', nombre: 'Condominio El Parque', direccion: 'Blvd. Parque 789, Col. Centro', estado: 'ACTIVO', plan: 'EMPRESARIAL', usuarios: 8, residentes: 200, createdAt: new Date('2022-09-01') },
-  { id: '4', nombre: 'Edificio Solar', direccion: 'Av. Solar 321, Col. Brillante', estado: 'SUSPENDIDO', plan: 'BASICO', usuarios: 1, residentes: 24, createdAt: new Date('2024-01-10') },
-];
-
 export default function SuperAdminPage() {
-  const [condominios, setCondominios] = useState<Condominio[]>(condominiosIniciales);
+  const [condominios, setCondominios] = useState<Condominio[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [selectedCondominio, setSelectedCondominio] = useState<Condominio | null>(null);
+  const [apiKey, setApiKey] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const [newCondominio, setNewCondominio] = useState({
+    nombre: '',
+    direccion: '',
+    telefono: '',
+    email: '',
+    tipoCondominio: 'APARTAMENTOS' as 'CASAS' | 'APARTAMENTOS',
+  });
+
+  useEffect(() => {
+    fetchCondominios();
+  }, []);
+
+  const fetchCondominios = async () => {
+    try {
+      const res = await fetch('/api/super-admin/condominios');
+      if (res.ok) {
+        const data = await res.json();
+        setCondominios(data);
+      }
+    } catch (error) {
+      console.error('Error fetching:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerApiKey = async (condominio: Condominio) => {
+    setSelectedCondominio(condominio);
+    try {
+      const res = await fetch(`/api/super-admin/condominios/${condominio.id}/api-key`);
+      if (res.ok) {
+        const data = await res.json();
+        setApiKey(data.apiKey);
+        setIsApiKeyModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching API key:', error);
+    }
+  };
+
+  const handleCrearCondominio = async () => {
+    try {
+      const res = await fetch('/api/super-admin/condominios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCondominio),
+      });
+      if (res.ok) {
+        setIsModalOpen(false);
+        setNewCondominio({ nombre: '', direccion: '', telefono: '', email: '', tipoCondominio: 'APARTAMENTOS' });
+        fetchCondominios();
+      }
+    } catch (error) {
+      console.error('Error creating:', error);
+    }
+  };
 
   const getEstadoBadge = (estado: string) => {
     switch (estado) {
@@ -58,10 +113,10 @@ export default function SuperAdminPage() {
       <div className="fixed left-0 top-0 h-screen w-64 bg-slate-900 border-r flex flex-col py-6 px-4 z-50">
         <div className="flex items-center gap-3 px-2 mb-10">
           <div className="w-10 h-10 rounded-full bg-primary p-1 flex items-center justify-center shadow-sm">
-            <span className="text-on-primary font-headline font-extrabold text-xl">JC</span>
+            <span className="text-on-primary font-headline font-extrabold text-xl">CP</span>
           </div>
           <div>
-            <h1 className="font-headline text-lg font-bold text-white leading-tight">JC Condominios</h1>
+            <h1 className="font-headline text-lg font-bold text-white leading-tight">Condominios PIVOT</h1>
             <p className="font-label text-xs text-slate-400 italic">Super Admin Panel</p>
           </div>
         </div>
@@ -110,7 +165,13 @@ export default function SuperAdminPage() {
         </header>
 
         <div className="mt-16 p-8 flex-1">
-          <div className="grid grid-cols-12 gap-6 mb-8">
+          {loading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <>
+            <div className="grid grid-cols-12 gap-6 mb-8">
             <div className="col-span-12 lg:col-span-4">
               <Card className="bg-gradient-to-br from-primary-fixed to-primary">
                 <p className="text-sm font-label text-on-primary-fixed mb-1">Total Condominios</p>
@@ -129,7 +190,7 @@ export default function SuperAdminPage() {
                 <p className="text-4xl font-headline font-extrabold text-on-secondary-fixed">{totalResidentes}</p>
               </Card>
             </div>
-          </div>
+            </div>
 
           <Card>
             <div className="overflow-x-auto">
@@ -137,7 +198,7 @@ export default function SuperAdminPage() {
                 <thead>
                   <tr className="border-b border-surface-container">
                     <th className="text-left py-4 px-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Condominio</th>
-                    <th className="text-left py-4 px-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Dirección</th>
+                    <th className="text-left py-4 px-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tipo</th>
                     <th className="text-left py-4 px-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Plan</th>
                     <th className="text-center py-4 px-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Usuarios</th>
                     <th className="text-center py-4 px-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Residentes</th>
@@ -154,10 +215,17 @@ export default function SuperAdminPage() {
                           <div className="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center">
                             <span className="text-primary font-bold text-sm">{cond.nombre.charAt(0)}</span>
                           </div>
-                          <span className="font-semibold text-on-surface">{cond.nombre}</span>
+                          <div>
+                            <span className="font-semibold text-on-surface">{cond.nombre}</span>
+                            <p className="text-xs text-on-surface-variant">{cond.direccion}</p>
+                          </div>
                         </div>
                       </td>
-                      <td className="py-4 px-4 text-sm text-on-surface-variant">{cond.direccion}</td>
+                      <td className="py-4 px-4">
+                        <Badge variant={cond.tipoCondominio === 'CASAS' ? 'info' : 'default'}>
+                          {cond.tipoCondominio === 'CASAS' ? 'Casas' : 'Apartamentos'}
+                        </Badge>
+                      </td>
                       <td className="py-4 px-4">{getPlanBadge(cond.plan)}</td>
                       <td className="py-4 px-4 text-center text-sm font-semibold text-on-surface">{cond.usuarios}</td>
                       <td className="py-4 px-4 text-center text-sm font-semibold text-on-surface">{cond.residentes}</td>
@@ -168,15 +236,20 @@ export default function SuperAdminPage() {
                           <Button
                             variant="ghost"
                             size="sm"
+                            onClick={() => handleVerApiKey(cond)}
+                            title="Ver API Key"
+                          >
+                            <span className="material-symbols-outlined text-sm">key</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => setSelectedCondominio(cond)}
                           >
                             <span className="material-symbols-outlined text-sm">visibility</span>
                           </Button>
                           <Button variant="ghost" size="sm">
                             <span className="material-symbols-outlined text-sm">edit</span>
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <span className="material-symbols-outlined text-sm">more_vert</span>
                           </Button>
                         </div>
                       </td>
@@ -186,28 +259,108 @@ export default function SuperAdminPage() {
               </table>
             </div>
           </Card>
+            </>
+          )}
         </div>
 
         <footer className="w-full py-4 border-t border-slate-100 flex justify-center items-center">
-          <p className="font-inter text-xs italic text-slate-400">Panel de Administración - JC Condominios SaaS</p>
+          <p className="font-inter text-xs italic text-slate-400">Panel de Administración - Condominios PIVOT SaaS</p>
         </footer>
       </main>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nuevo Condominio">
         <div className="space-y-6">
-          <Input label="Nombre" placeholder="Nombre del condominio" />
-          <Input label="Dirección" placeholder="Dirección completa" />
-          <Input label="Teléfono" placeholder="Teléfono de contacto" />
-          <Input label="Email" placeholder="Email de contacto" type="email" />
+          <Input 
+            label="Nombre" 
+            placeholder="Nombre del condominio" 
+            value={newCondominio.nombre}
+            onChange={(e) => setNewCondominio({ ...newCondominio, nombre: e.target.value })}
+          />
+          <Input 
+            label="Dirección" 
+            placeholder="Dirección completa" 
+            value={newCondominio.direccion}
+            onChange={(e) => setNewCondominio({ ...newCondominio, direccion: e.target.value })}
+          />
+          <div>
+            <label className="block text-sm font-medium text-on-surface-variant mb-2">Tipo de Condominio</label>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => setNewCondominio({ ...newCondominio, tipoCondominio: 'APARTAMENTOS' })}
+                className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
+                  newCondominio.tipoCondominio === 'APARTAMENTOS'
+                    ? 'border-primary bg-primary-container text-on-primary-container'
+                    : 'border-surface-container hover:border-primary-container'
+                }`}
+              >
+                <span className="material-symbols-outlined text-2xl block mb-1">apartment</span>
+                <span className="text-sm font-medium">Apartamentos</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewCondominio({ ...newCondominio, tipoCondominio: 'CASAS' })}
+                className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
+                  newCondominio.tipoCondominio === 'CASAS'
+                    ? 'border-primary bg-primary-container text-on-primary-container'
+                    : 'border-surface-container hover:border-primary-container'
+                }`}
+              >
+                <span className="material-symbols-outlined text-2xl block mb-1">house</span>
+                <span className="text-sm font-medium">Casas</span>
+              </button>
+            </div>
+          </div>
+          <Input 
+            label="Teléfono" 
+            placeholder="Teléfono de contacto" 
+            value={newCondominio.telefono}
+            onChange={(e) => setNewCondominio({ ...newCondominio, telefono: e.target.value })}
+          />
+          <Input 
+            label="Email" 
+            placeholder="Email de contacto" 
+            type="email" 
+            value={newCondominio.email}
+            onChange={(e) => setNewCondominio({ ...newCondominio, email: e.target.value })}
+          />
           <div className="flex gap-4 pt-4">
             <Button variant="outline" onClick={() => setIsModalOpen(false)} className="flex-1">
               Cancelar
             </Button>
-            <Button className="flex-1">
+            <Button onClick={handleCrearCondominio} className="flex-1">
               <span className="material-symbols-outlined text-sm">save</span>
               Crear Condominio
             </Button>
           </div>
+        </div>
+      </Modal>
+
+      <Modal 
+        isOpen={isApiKeyModalOpen} 
+        onClose={() => { setIsApiKeyModalOpen(false); setApiKey(''); }} 
+        title={`API Key - ${selectedCondominio?.nombre}`}
+      >
+        <div className="space-y-4">
+          <div className="bg-surface-container-low rounded-lg p-4">
+            <p className="text-xs text-on-surface-variant mb-2">Clave API</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 bg-surface-container-high rounded px-3 py-2 text-sm font-mono break-all">
+                {apiKey || 'Generando...'}
+              </code>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigator.clipboard.writeText(apiKey)}
+                disabled={!apiKey}
+              >
+                <span className="material-symbols-outlined text-sm">content_copy</span>
+              </Button>
+            </div>
+          </div>
+          <p className="text-xs text-on-surface-variant">
+            Usa esta clave para autenticarte con la API del condominio. No compartas esta clave.
+          </p>
         </div>
       </Modal>
 

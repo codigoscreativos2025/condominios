@@ -110,7 +110,7 @@ export default function IngresosEgresosPage() {
             <span className="text-primary font-headline font-extrabold text-xl">JC</span>
           </div>
           <div>
-            <h1 className="font-headline text-lg font-bold leading-tight">JC Condominios</h1>
+            <h1 className="font-headline text-lg font-bold leading-tight">Condominios PIVOT</h1>
             <p className="font-label text-xs text-on-surface-variant/70 italic">Management System</p>
           </div>
         </div>
@@ -255,7 +255,7 @@ export default function IngresosEgresosPage() {
         </div>
 
         <footer className="w-full py-4 border-t border-slate-100 flex justify-center items-center">
-          <p className="font-inter text-xs italic text-slate-400">Automatizaciones por n8n</p>
+          <p className="font-inter text-xs italic text-slate-400">Automatizaciones</p>
         </footer>
       </main>
 

@@ -162,7 +162,7 @@ export default async function AdminDashboardPage() {
         </div>
 
         <footer className="w-full py-4 border-t border-slate-100 dark:border-slate-800 bg-transparent flex justify-center items-center">
-          <p className="font-inter text-xs italic text-slate-400">Automatizaciones por n8n</p>
+          <p className="font-inter text-xs italic text-slate-400">Automatizaciones</p>
         </footer>
       </main>
     </div>

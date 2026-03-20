@@ -53,7 +53,7 @@ export default function EstadoCuentaPage() {
             <span className="text-primary font-headline font-extrabold text-xl">JC</span>
           </div>
           <div>
-            <h1 className="font-headline text-lg font-bold leading-tight">JC Condominios</h1>
+            <h1 className="font-headline text-lg font-bold leading-tight">Condominios PIVOT</h1>
             <p className="font-label text-xs text-on-surface-variant/70 italic">Portal Residente</p>
           </div>
         </div>
@@ -104,6 +104,10 @@ export default function EstadoCuentaPage() {
             <p className="text-xs text-on-surface-variant">Torre A - Unidad 302</p>
           </div>
           <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={() => window.open('/api/residente/balance', '_blank')}>
+              <span className="material-symbols-outlined text-sm">download</span>
+              Exportar Balance PDF
+            </Button>
             <Button>
               <span className="material-symbols-outlined text-sm">payment</span>
               Realizar Pago
@@ -253,10 +257,10 @@ export default function EstadoCuentaPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setSelectedRecibo(pago)}
+                        onClick={() => window.open(`/api/residente/facturas/${pago.id}`, '_blank')}
                       >
                         <span className="material-symbols-outlined text-sm">download</span>
-                        Recibo
+                        Factura PDF
                       </Button>
                     </div>
                   </div>
@@ -267,7 +271,7 @@ export default function EstadoCuentaPage() {
         </div>
 
         <footer className="w-full py-4 border-t border-slate-100 flex justify-center items-center">
-          <p className="font-inter text-xs italic text-slate-400">Automatizaciones por n8n</p>
+          <p className="font-inter text-xs italic text-slate-400">Automatizaciones</p>
         </footer>
       </main>
 
@@ -283,7 +287,7 @@ export default function EstadoCuentaPage() {
               <div className="w-16 h-16 rounded-full bg-primary mx-auto mb-4 flex items-center justify-center">
                 <span className="text-on-primary font-headline font-extrabold text-xl">JC</span>
               </div>
-              <h3 className="font-headline text-xl font-bold text-on-surface">JC Condominios</h3>
+              <h3 className="font-headline text-xl font-bold text-on-surface">Condominios PIVOT</h3>
               <p className="text-sm text-on-surface-variant">Comprobante de Pago</p>
             </div>
 

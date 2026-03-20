@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardTitle, Badge, Button, Modal, Input } from '@/components/ui';
 import { formatCurrency } from '@/lib/utils';
 
@@ -9,37 +9,73 @@ interface Residente {
   nombre: string;
   email: string;
   telefono: string;
-  torre: string;
-  unidad: string;
+  torre: string | null;
+  unidad: string | null;
+  calle?: string | null;
+  numero?: string | null;
   tipo: 'PROPIETARIO' | 'INQUILINO';
   estadoPago: 'AL_DIA' | 'PENDIENTE' | 'VENCIDO';
   saldo: number;
   avatar?: string;
 }
 
-const residentesIniciales: Residente[] = [
-  { id: '1', nombre: 'Carlos Mendoza', email: 'carlos.mendoza@email.com', telefono: '55 1234 5678', torre: 'Torre A', unidad: '302', tipo: 'PROPIETARIO', estadoPago: 'AL_DIA', saldo: 0 },
-  { id: '2', nombre: 'Ana López', email: 'ana.lopez@email.com', telefono: '55 2345 6789', torre: 'Torre B', unidad: '501', tipo: 'PROPIETARIO', estadoPago: 'AL_DIA', saldo: 0 },
-  { id: '3', nombre: 'Roberto Díaz', email: 'roberto.diaz@email.com', telefono: '55 3456 7890', torre: 'Torre C', unidad: '105', tipo: 'INQUILINO', estadoPago: 'VENCIDO', saldo: 4500 },
-  { id: '4', nombre: 'María García', email: 'maria.garcia@email.com', telefono: '55 4567 8901', torre: 'Torre A', unidad: '401', tipo: 'PROPIETARIO', estadoPago: 'PENDIENTE', saldo: 2500 },
-  { id: '5', nombre: 'Juan Hernández', email: 'juan.hernandez@email.com', telefono: '55 5678 9012', torre: 'Torre B', unidad: '203', tipo: 'PROPIETARIO', estadoPago: 'AL_DIA', saldo: 0 },
-  { id: '6', nombre: 'Laura Martínez', email: 'laura.martinez@email.com', telefono: '55 6789 0123', torre: 'Torre C', unidad: '602', tipo: 'INQUILINO', estadoPago: 'AL_DIA', saldo: 0 },
-  { id: '7', nombre: 'Pedro Sánchez', email: 'pedro.sanchez@email.com', telefono: '55 7890 1234', torre: 'Torre A', unidad: '105', tipo: 'PROPIETARIO', estadoPago: 'VENCIDO', saldo: 7500 },
-  { id: '8', nombre: 'Sofia Rodríguez', email: 'sofia.rodriguez@email.com', telefono: '55 8901 2345', torre: 'Torre B', unidad: '404', tipo: 'PROPIETARIO', estadoPago: 'AL_DIA', saldo: 0 },
-];
-
-const filtrosTorre = ['Todos', 'Torre A', 'Torre B', 'Torre C'];
+const filtrosTorre = ['Todos'];
 const filtrosTipo = ['Todos', 'Propietarios', 'Inquilinos'];
 const filtrosEstado = ['Todos', 'Al día', 'Pendiente', 'Vencido'];
 
 export default function DirectorioPage() {
-  const [residentes, setResidentes] = useState<Residente[]>(residentesIniciales);
+  const [residentes, setResidentes] = useState<Residente[]>([]);
+  const [torresUnicas, setTorresUnicas] = useState<string[]>(['Todos']);
   const [filtroTorre, setFiltroTorre] = useState('Todos');
   const [filtroTipo, setFiltroTipo] = useState('Todos');
   const [filtroEstado, setFiltroEstado] = useState('Todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedResidente, setSelectedResidente] = useState<Residente | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchResidentes();
+  }, []);
+
+  const fetchResidentes = async () => {
+    try {
+      const res = await fetch('/api/admin/residentes');
+      if (res.ok) {
+        const data = await res.json();
+        setResidentes(data);
+        const torresSet = new Set<string>();
+        data.forEach((r: Residente) => {
+          if (r.torre) torresSet.add(r.torre);
+        });
+        const torres = Array.from(torresSet);
+        setTorresUnicas(['Todos', ...torres]);
+      }
+    } catch (error) {
+      console.error('Error fetching residentes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportarExcel = async () => {
+    try {
+      const res = await fetch('/api/admin/residentes/exportar');
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'residentes.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }
+    } catch (error) {
+      console.error('Error exporting:', error);
+    }
+  };
 
   const filteredResidentes = residentes.filter((r) => {
     const matchTorre = filtroTorre === 'Todos' || r.torre === filtroTorre;
@@ -48,7 +84,8 @@ export default function DirectorioPage() {
       (filtroTipo === 'Inquilinos' && r.tipo === 'INQUILINO');
     const matchEstado = filtroEstado === 'Todos' || r.estadoPago === filtroEstado.toUpperCase().replace(' ', '_');
     const matchSearch = r.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.unidad.toLowerCase().includes(searchQuery.toLowerCase());
+      (r.unidad && r.unidad.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (r.calle && r.calle.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchTorre && matchTipo && matchEstado && matchSearch;
   });
 
@@ -78,7 +115,7 @@ export default function DirectorioPage() {
             <span className="text-primary font-headline font-extrabold text-xl">JC</span>
           </div>
           <div>
-            <h1 className="font-headline text-lg font-bold leading-tight">JC Condominios</h1>
+            <h1 className="font-headline text-lg font-bold leading-tight">Condominios PIVOT</h1>
             <p className="font-label text-xs text-on-surface-variant/70 italic">Management System</p>
           </div>
         </div>
@@ -127,7 +164,13 @@ export default function DirectorioPage() {
         </header>
 
         <div className="mt-16 p-8 flex-1">
-          <div className="mb-10 flex justify-between items-end">
+          {loading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <>
+            <div className="mb-10 flex justify-between items-end">
             <div>
               <h2 className="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">
                 Directorio de Residentes
@@ -136,16 +179,26 @@ export default function DirectorioPage() {
                 {filteredResidentes.length} residentes encontrados
               </p>
             </div>
-            <Button>
-              <span className="material-symbols-outlined text-sm">person_add</span>
-              Nuevo Residente
-            </Button>
-          </div>
+            <div className="flex gap-3">
+              <Button variant="outline" onClick={() => window.location.href = '/admin/directorio/importar'}>
+                <span className="material-symbols-outlined text-sm">upload</span>
+                Importar Excel
+              </Button>
+              <Button variant="outline" onClick={handleExportarExcel}>
+                <span className="material-symbols-outlined text-sm">download</span>
+                Exportar Excel
+              </Button>
+              <Button>
+                <span className="material-symbols-outlined text-sm">person_add</span>
+                Nuevo Residente
+              </Button>
+            </div>
+            </div>
 
           <Card className="mb-6">
             <div className="flex flex-wrap gap-4">
               <div className="flex gap-2">
-                {filtrosTorre.map((torre) => (
+                {torresUnicas.map((torre) => (
                   <button
                     key={torre}
                     onClick={() => setFiltroTorre(torre)}
@@ -206,7 +259,13 @@ export default function DirectorioPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-on-surface truncate">{residente.nombre}</h3>
-                    <p className="text-sm text-on-surface-variant">{residente.torre} - {residente.unidad}</p>
+                    <p className="text-sm text-on-surface-variant">
+                      {residente.torre && residente.unidad 
+                        ? `${residente.torre} - ${residente.unidad}`
+                        : residente.calle && residente.numero
+                          ? `${residente.calle} #${residente.numero}`
+                          : 'Sin ubicación'}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between mb-4">
@@ -230,10 +289,12 @@ export default function DirectorioPage() {
               Cargar más residentes
             </Button>
           </div>
+            </>
+          )}
         </div>
 
         <footer className="w-full py-4 border-t border-slate-100 flex justify-center items-center">
-          <p className="font-inter text-xs italic text-slate-400">Automatizaciones por n8n</p>
+          <p className="font-inter text-xs italic text-slate-400">Automatizaciones</p>
         </footer>
       </main>
 
@@ -251,7 +312,13 @@ export default function DirectorioPage() {
               </div>
               <div>
                 <h3 className="font-headline text-2xl font-bold text-on-surface">{selectedResidente.nombre}</h3>
-                <p className="text-on-surface-variant">{selectedResidente.torre} - {selectedResidente.unidad}</p>
+                <p className="text-on-surface-variant">
+                  {selectedResidente.torre && selectedResidente.unidad 
+                    ? `${selectedResidente.torre} - ${selectedResidente.unidad}`
+                    : selectedResidente.calle && selectedResidente.numero
+                      ? `${selectedResidente.calle} #${selectedResidente.numero}`
+                      : 'Sin ubicación'}
+                </p>
                 <div className="flex gap-2 mt-2">
                   <Badge variant={selectedResidente.tipo === 'PROPIETARIO' ? 'info' : 'default'}>
                     {selectedResidente.tipo === 'PROPIETARIO' ? 'Propietario' : 'Inquilino'}

@@ -3,7 +3,7 @@ import { SessionProvider } from 'next-auth/react';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'JC Condominios - Management System',
+  title: 'Condominios PIVOT - Management System',
   description: 'Plataforma SaaS multi-tenant para administración integral de condominios',
 };
 
