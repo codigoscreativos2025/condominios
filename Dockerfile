@@ -32,7 +32,7 @@ COPY --from=builder /app/node_modules ./node_modules
 
 RUN mkdir /home/nextjs && chown nextjs:nodejs /home/nextjs
 RUN mkdir /app/uploads && chown nextjs:nodejs /app/uploads
-RUN mkdir /app/data && chown nextjs:nodejs /app/data && chown nextjs:nodejs /app/data/dev.db
+RUN chown -R nextjs:nodejs /app/data
 
 ENV HOME=/home/nextjs
 
