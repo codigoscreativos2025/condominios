@@ -39,7 +39,7 @@ Agregar las siguientes variables de entorno en EasyPanel:
 
 ```env
 # Base de datos
-DATABASE_URL=file:./data/dev.db
+DATABASE_URL=file:///app/data/dev.db
 
 # NextAuth v5 - URL de producción (REEMPLAZAR con tu dominio)
 NEXTAUTH_URL=https://tu-dominio.com

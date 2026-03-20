@@ -21,7 +21,7 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV DATABASE_URL="file:./data/dev.db"
+ENV DATABASE_URL="file:///app/data/dev.db"
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -40,4 +40,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "if [ ! -f /app/data/dev.db ]; then cp /app/prisma/dev.db /app/data/dev.db; fi && node server.js"]

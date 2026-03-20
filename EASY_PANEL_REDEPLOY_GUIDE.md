@@ -44,7 +44,7 @@ Agregar estas variables en **Settings → Environment**:
 | Variable | Valor | Descripción |
 |----------|-------|-------------|
 | `AUTH_SECRET` | `Mji5sOppRB9iLPCIcOE-BB2StaTErcGo` | Secret para NextAuth (min 32 caracteres) |
-| `DATABASE_URL` | `file:./data/dev.db` | Ruta a la base de datos SQLite |
+| `DATABASE_URL` | `file:///app/data/dev.db` | Ruta absoluta a la base de datos SQLite |
 | `NEXTAUTH_URL` | `https://pagpivot-condominios.xfozpf.easypanel.host` | URL de la aplicación |
 | `UPLOAD_DIR` | `/app/uploads` | Directorio para archivos subidos |
 
