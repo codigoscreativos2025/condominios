@@ -67,7 +67,7 @@ docker-compose up -d
 |---------------|------------------------------ ------------|-------------|
 | Admin         | [admin@torresdevale.com] | admin123    |
 | Super Admin   | [superadmin@jccondominios.com] | admin123    |
-| Residente     | [carlos.mendoza@email.com] | admin123    |
+| Residente     | [ ] | admin123    |
 
 ## APIs
 

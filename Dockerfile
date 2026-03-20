@@ -1,3 +1,5 @@
+# JC Condominios - Production Dockerfile
+# Cache version: 2026-03-20-01
 FROM node:18-alpine AS base
 
 RUN apk add --no-cache libc6-compat openssl
