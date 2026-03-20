@@ -12,7 +12,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV DATABASE_URL="file:./dev.db"
-RUN npx prisma@5.13.0 generate
+RUN npx prisma generate
 RUN npm run build
 
 FROM base AS runner
@@ -41,4 +41,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["/bin/sh", "-c", "npx prisma@5.13.0 db push --skip-generate --accept-data-loss && npx tsx prisma/seed.ts && node server.js"]
+CMD ["/bin/sh", "-c", "npx prisma db push --skip-generate --accept-data-loss && npx tsx prisma/seed.ts && node server.js"]
