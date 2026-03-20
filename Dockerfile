@@ -26,8 +26,11 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 
+RUN mkdir /home/nextjs && chown nextjs:nodejs /home/nextjs
 RUN mkdir /app/uploads && chown nextjs:nodejs /app/uploads
 RUN mkdir /app/data && chown nextjs:nodejs /app/data
+
+ENV HOME=/home/nextjs
 
 USER nextjs
 
