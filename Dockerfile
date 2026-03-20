@@ -12,7 +12,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate
 RUN DATABASE_URL=file:/app/prisma/dev.db npx prisma db push --accept-data-loss
-RUN npm run db:seed
+RUN DATABASE_URL=file:/app/prisma/dev.db npm run db:seed
 RUN npm run build
 
 FROM base AS runner
