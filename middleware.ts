@@ -30,7 +30,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
+  const isSecure = process.env.NODE_ENV === 'production' || request.headers.get('x-forwarded-proto') === 'https';
+  const token = await getToken({ 
+    req: request, 
+    secret: process.env.AUTH_SECRET,
+    secureCookie: isSecure
+  });
+
 
   if (!token) {
     const loginUrl = new URL('/login', request.url);
