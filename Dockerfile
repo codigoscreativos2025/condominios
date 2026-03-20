@@ -11,8 +11,6 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate
-RUN DATABASE_URL=file:/app/prisma/dev.db npx prisma db push --accept-data-loss
-RUN DATABASE_URL=file:/app/prisma/dev.db npx tsx prisma/seed.ts
 RUN npm run build
 
 FROM base AS runner
@@ -27,12 +25,12 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/prisma/dev.db ./data/dev.db
+COPY --from=builder /app/prisma/seed.ts ./prisma/seed.ts
 COPY --from=builder /app/node_modules ./node_modules
 
 RUN mkdir /home/nextjs && chown nextjs:nodejs /home/nextjs
 RUN mkdir /app/uploads && chown nextjs:nodejs /app/uploads
-RUN chown -R nextjs:nodejs /app/data
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
 ENV HOME=/home/nextjs
 
@@ -43,4 +41,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npx tsx node_modules/.bin/prisma-seed && node server.js"]
